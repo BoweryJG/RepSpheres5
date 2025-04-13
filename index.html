@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Guide Sphere Simple Demo</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body {
+      background: #111a25;
+      font-family: sans-serif;
+      color: #eaffff;
+      margin: 0;
+      min-height: 250vh;
+    }
+    .ecosystem {
+      width: 320px; height: 320px;
+      margin: 60px auto 50px auto;
+      position: relative;
+    }
+    .center-sphere {
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      background: radial-gradient(circle,#00cfff 0%,#11ffa5 95%, #00131e 100%);
+      box-shadow:0 0 30px #00edff77, 0 0 40px #0037ffbb;
+      position:absolute; left:calc(50% - 45px); top:calc(50% - 45px); z-index:2;
+      display: flex; align-items: center; justify-content: center;
+      font-weight:bold; font-size: 1.3rem;
+    }
+    /* Spheres in "orbit" - just static for demo */
+    .satellite {
+      width:55px; height:55px;
+      border-radius:50%;
+      background: #1ad9f5;
+      position: absolute;
+      box-shadow:0 0 12px #2fffd770;
+      display: flex; align-items: center; justify-content: center;
+      color:#111;font-size:.97em;font-weight:bold;
+    }
+    /* Position six satellites statically for demo */
+    .sat1 {left: 20px;  top: 120px;}
+    .sat2 {right: 20px; top: 60px;}
+    .sat3 {left: 130px; top: 0px;}
+    .sat4 {left: 240px; top: 135px;}
+    .sat5 {left: 60px;  top: 240px;}
+    .sat6 {right: 40px; top: 230px;}
+    /* Guide sphere style */
+    .guidesphere {
+      position: fixed;
+      left: 24px;
+      top: 30vh;
+      width: 66px; height: 66px;
+      border-radius:50%;
+      background: radial-gradient(circle, #18fff7 50%, #00bfff 100%);
+      box-shadow: 0 0 30px 7px #22ffe76a, 0 0 40px #25fcff88, 0 0 5px #fff;
+      border: 2px solid #0fffc080;
+      display: flex; align-items: center; justify-content: center;
+      color: #022;
+      font-weight: bold;
+      font-size: 1.02em;
+      z-index: 200;
+      cursor: pointer;
+      transition: top 0.18s cubic-bezier(.4,1.5,.7,1), box-shadow .18s;
+      user-select: none;
+    }
+    .guidesphere.snapped {
+      background: #222;
+      color: #aaa;
+      box-shadow: 0 0 9px 1px #017;
+    }
+    .section {
+      max-width:500px;
+      background:#184050a8;
+      margin:50px auto;
+      border-radius:18px;
+      padding:44px 32px;
+      font-size:1.1rem;
+      box-shadow:0 4px 12px #0085bb38;
+    }
+  </style>
+</head>
+<body>
+  <div class="ecosystem">
+    <div class="center-sphere">RepSphere</div>
+    <div class="satellite sat1">Token</div>
+    <div class="satellite sat2">Doc</div>
+    <div class="satellite sat3">Vote</div>
+    <div class="satellite sat4">Team</div>
+    <div class="satellite sat5">NFT</div>
+    <div class="satellite sat6">DEX</div>
+  </div>
+
+  <div class="section" style="margin-top: 120px;">
+    <h2>About</h2>
+    <p>The Rep Spheres ecosystem provides distributed on-chain tools.</p>
+  </div>
+  <div class="section">
+    <h2>Features</h2>
+    <ul>
+      <li>Live ecosystem UI</li>
+      <li>Voting, documents, NFTs</li>
+      <li>All on-chain</li>
+    </ul>
+  </div>
+  <div class="section">
+    <h2>Get Started</h2>
+    <p>Explore spheres above and see what you can build!</p>
+  </div>
+
+  <!-- Guide Sphere: just add to DOM from JS -->
+  <script>
+    // Simple guide sphere logic: follows scroll, click snaps to ecosystem
+    const gs = document.createElement('div');
+    gs.className = 'guidesphere';
+    gs.title = 'Click to dock/hide in the ecosystem';
+    gs.textContent = 'Guide';
+    document.body.appendChild(gs);
+
+    let snapped = false;
+
+    function updateGuideSphere() {
+      if (snapped) return;
+      const winH = window.innerHeight;
+      const scrollY = window.scrollY;
+      const docH = document.documentElement.scrollHeight - winH;
+      const percent = docH ? scrollY / docH : 0;
+      gs.style.top = `calc(${percent * 80}vh + 40px)`;
+    }
+
+    window.addEventListener('scroll', updateGuideSphere);
+    window.addEventListener('resize', updateGuideSphere);
+    updateGuideSphere();
+
+    gs.addEventListener('click', function(){
+      snapped = !snapped;
+      if(snapped) {
+        // Fly guidesphere to the center of the ecosystem and fade
+        var eco = document.querySelector('.ecosystem');
+        if(eco) {
+          const r = eco.getBoundingClientRect();
+          gs.classList.add('snapped');
+          gs.style.transition = 'top 0.5s, left 0.5s, opacity 0.7s';
+          gs.style.left = (r.left + r.width/2 - 33) + "px";
+          gs.style.top = (r.top + r.height/2 - 33 + window.scrollY) + "px";
+          setTimeout(()=>gs.style.opacity="0.2", 500);
+        }
+      } else {
+        gs.classList.remove('snapped');
+        gs.style.left = "24px";
+        gs.style.opacity = "1";
+        updateGuideSphere();
+      }
+    });
+  </script>
+</body>
+</html>
